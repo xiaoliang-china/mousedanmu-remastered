@@ -6,11 +6,13 @@ import com.xiaoliang.bili.live.danmu.DanmuClient;
 import com.xiaoliang.bili.live.danmu.User;
 import com.xiaoliang.bili.live.danmu.handler.*;
 import com.xiaoliang.bili.live.danmu.model.*;
+import com.xiaoliang.mousedanmu.MouseDanmuRemastered;
 import com.xiaoliang.mousedanmu.config.ModConfig;
 import com.xiaoliang.mousedanmu.display.DanmuColorPicker;
 import com.xiaoliang.mousedanmu.display.DanmuConverter;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
@@ -79,9 +81,35 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
     @Override
     public void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, @NotNull MinecraftClient client) {
         player = client.player;
+        sendWelcomeMessage();
         if (config.liveRoom.autoConnect && config.liveRoom.roomId != 0) {
             connect(config.liveRoom.roomId);
         }
+    }
+
+    /**
+     * 进入世界时发送欢迎提示语（单人、服务器、多人联机均会触发）。
+     */
+    private void sendWelcomeMessage() {
+        if (player == null) return;
+        var container = FabricLoader.getInstance().getModContainer(MouseDanmuRemastered.MOD_ID);
+        if (container.isEmpty()) return;
+        var metadata = container.get().getMetadata();
+        String modName = metadata.getName();
+        String modVersion = metadata.getVersion().getFriendlyString();
+        String gameVersion = MinecraftClient.getInstance().getGameVersion();
+        String author = metadata.getAuthors().stream()
+                .findFirst().map(p -> p.getName()).orElse("");
+
+        MutableText msg = Text.translatable("text.mousedanmu-remastered.welcome.prefix").formatted(Formatting.WHITE)
+                .append(Text.literal(" " + modName + " v" + modVersion).formatted(Formatting.GOLD))
+                .append(Text.literal("\n").formatted(Formatting.WHITE))
+                .append(Text.translatable("text.mousedanmu-remastered.welcome.game-version", gameVersion).formatted(Formatting.GREEN))
+                .append(Text.literal("\n").formatted(Formatting.WHITE))
+                .append(Text.translatable("text.mousedanmu-remastered.welcome.author", author).formatted(Formatting.AQUA))
+                .append(Text.literal("\n").formatted(Formatting.WHITE))
+                .append(Text.translatable("text.mousedanmu-remastered.welcome.help").formatted(Formatting.YELLOW));
+        player.sendMessage(msg, false);
     }
 
     public void connect(int room) {
@@ -143,7 +171,7 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             MinecraftClient.getInstance().execute(() -> {
                 if (player != null)
-                    player.sendMessage(Text.literal("自动重连失败，请使用 /mousedanmu-remastered connect <房间号> 重新连接")
+                    player.sendMessage(Text.literal("自动重连失败，请使用 /mdmr connect <房间号> 重新连接")
                             .formatted(Formatting.RED), false);
             });
             return;

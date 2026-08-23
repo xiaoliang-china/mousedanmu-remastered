@@ -6,11 +6,17 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.MessageArgumentType;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class MouseDanmuCommand {
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        var literalCommandNode = dispatcher.register(ClientCommandManager.literal("mousedanmu-remastered")
+        dispatcher.register(ClientCommandManager.literal("mdmr")
+                .then(ClientCommandManager.literal("help")
+                        .executes(context -> help()))
                 .then(ClientCommandManager.literal("connect")
                         .then(ClientCommandManager.argument("roomId", RoomIdArgumentType.roomId())
                                 .executes(context -> connect(context.getArgument("roomId", Integer.class)))))
@@ -24,14 +30,25 @@ public class MouseDanmuCommand {
                         .executes(context -> test(500)))
                 .then(ClientCommandManager.argument("message", MessageArgumentType.message())
                         .executes(context -> send(context.getArgument("message", MessageArgumentType.MessageFormat.class).contents()))));
-
-        dispatcher.register(ClientCommandManager.literal("dm").redirect(literalCommandNode));
     }
 
     public static int connect(int roomId) {
         MouseDanmuRemastered.client.close();
         MouseDanmuRemastered.client.connect(roomId);
         MouseDanmuRemastered.save();
+        return 1;
+    }
+
+    public static int help() {
+        var player = MinecraftClient.getInstance().player;
+        if (player == null) return 1;
+        MutableText msg = Text.translatable("text.mousedanmu-remastered.help.title").formatted(Formatting.GOLD);
+        String[] keys = {"connect", "close", "status", "test", "send"};
+        for (String key : keys) {
+            msg.append(Text.literal("\n"))
+                    .append(Text.translatable("text.mousedanmu-remastered.help." + key).formatted(Formatting.GRAY));
+        }
+        player.sendMessage(msg, false);
         return 1;
     }
 

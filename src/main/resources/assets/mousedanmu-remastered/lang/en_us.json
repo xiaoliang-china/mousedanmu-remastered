@@ -1,6 +1,6 @@
 {
   "modmenu.nameTranslation.mousedanmu-remastered": "MouseDanmu Remastered",
-  "modmenu.descriptionTranslation.mousedanmu-remastered": "A client mod that displays Bilibili live danmaku in Minecraft in real time.\n\nUse '/dm connect <room_id>' to connect to a live room; use '/dm' or '/mousedanmu-remastered' to view all commands.\n\nMain features:\n- Real-time danmaku, gifts, super chats and guard messages\n- Customizable subtitles, styles and gift effects\n- Send danmaku\n\nDisclaimer:\nThis mod fetches live danmaku through Bilibili's public interface. Using your user Cookie to send danmaku is optional and carries account risks. Use at your own risk.",
+  "modmenu.descriptionTranslation.mousedanmu-remastered": "A client mod that displays Bilibili live danmaku in Minecraft in real time.\n\nUse '/mdmr connect <room_id>' to connect to a live room; use '/mdmr' to view all commands.\n\nMain features:\n- Real-time danmaku, gifts, super chats and guard messages\n- Customizable subtitles, styles and gift effects\n- Send danmaku\n\nDisclaimer:\nThis mod fetches live danmaku through Bilibili's public interface. Using your user Cookie to send danmaku is optional and carries account risks. Use at your own risk.",
   "text.autoconfig.mousedanmu-remastered.category.danmu": "Danmu",
   "text.autoconfig.mousedanmu-remastered.category.gift": "Gift",
   "text.autoconfig.mousedanmu-remastered.category.guard": "Guard",
@@ -93,5 +93,15 @@
   "text.mousedanmu-remastered.test.sc-4": "Mouse Mouse, you're up to no good! Hmph~",
   "text.mousedanmu-remastered.test.sc-5": "Woof woof! I'll turn you into a puppy~",
   "text.mousedanmu-remastered.test.medal-sc": "Chuxiangji",
-  "text.mousedanmu-remastered.test.sc-6": "Follow Yongchu Taffy meow meow! Follow Yongchu Taffy thank you meow~"
+  "text.mousedanmu-remastered.test.sc-6": "Follow Yongchu Taffy meow meow! Follow Yongchu Taffy thank you meow~",
+  "text.mousedanmu-remastered.welcome.prefix": "Welcome to",
+  "text.mousedanmu-remastered.welcome.game-version": "Game Version: 1.21.11-Fabric",
+  "text.mousedanmu-remastered.welcome.author": "Author: %s",
+  "text.mousedanmu-remastered.welcome.help": "Type /mdmr help to view all commands of this mod",
+  "text.mousedanmu-remastered.help.title": "MouseDanmu Remastered Commands:",
+  "text.mousedanmu-remastered.help.connect": "/mdmr connect <room_id> - Connect to live room",
+  "text.mousedanmu-remastered.help.close": "/mdmr close - Disconnect from live room",
+  "text.mousedanmu-remastered.help.status": "/mdmr status - Show connection status",
+  "text.mousedanmu-remastered.help.test": "/mdmr test [delay_ms] - Test danmaku display",
+  "text.mousedanmu-remastered.help.send": "/mdmr <message> - Send a danmaku"
 }

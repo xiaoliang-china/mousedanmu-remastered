@@ -1,6 +1,6 @@
 {
   "modmenu.nameTranslation.mousedanmu-remastered": "鼠鼠弹幕重置版",
-  "modmenu.descriptionTranslation.mousedanmu-remastered": "在《我的世界》中实时显示哔哩哔哩直播弹幕的客户端模组。\n\n使用 '/dm connect <直播间号>' 连接直播间，使用 '/dm' 或 '/mousedanmu-remastered' 查看全部命令。\n\n主要功能：\n- 实时显示弹幕、礼物、醒目留言与舰队消息\n- 支持自定义字幕、样式与礼物特效\n- 支持发送弹幕\n\n免责声明：\n本模组通过哔哩哔哩公开接口获取直播弹幕，可选用用户 Cookie 发送弹幕。使用 Cookie 存在账号风险，请谨慎使用；由此产生的账号或直播间封禁风险由使用者自行承担。",
+  "modmenu.descriptionTranslation.mousedanmu-remastered": "在《我的世界》中实时显示哔哩哔哩直播弹幕的客户端模组。\n\n使用 '/mdmr connect <直播间号>' 连接直播间，使用 '/mdmr' 查看全部命令。\n\n主要功能：\n- 实时显示弹幕、礼物、醒目留言与舰队消息\n- 支持自定义字幕、样式与礼物特效\n- 支持发送弹幕\n\n免责声明：\n本模组通过哔哩哔哩公开接口获取直播弹幕，可选用用户 Cookie 发送弹幕。使用 Cookie 存在账号风险，请谨慎使用；由此产生的账号或直播间封禁风险由使用者自行承担。",
   "text.autoconfig.mousedanmu-remastered.category.danmu": "弹幕",
   "text.autoconfig.mousedanmu-remastered.category.gift": "礼物",
   "text.autoconfig.mousedanmu-remastered.category.guard": "大航海",
@@ -93,5 +93,15 @@
   "text.mousedanmu-remastered.test.sc-4": "鼠鼠你坏事做尽！哼～",
   "text.mousedanmu-remastered.test.sc-5": "汪汪！要把你变成小狗哦～",
   "text.mousedanmu-remastered.test.medal-sc": "雏草姬",
-  "text.mousedanmu-remastered.test.sc-6": "关注永雏塔菲喵喵！关注永雏塔菲谢谢喵～"
+  "text.mousedanmu-remastered.test.sc-6": "关注永雏塔菲喵喵！关注永雏塔菲谢谢喵～",
+  "text.mousedanmu-remastered.welcome.prefix": "欢迎使用",
+  "text.mousedanmu-remastered.welcome.game-version": "游戏版本：1.21.11-Fabric",
+  "text.mousedanmu-remastered.welcome.author": "作者：%s",
+  "text.mousedanmu-remastered.welcome.help": "输入 /mdmr help 可以查看本模组所有指令",
+  "text.mousedanmu-remastered.help.title": "鼠鼠弹幕重置版 指令列表：",
+  "text.mousedanmu-remastered.help.connect": "/mdmr connect <房间号> - 连接直播间",
+  "text.mousedanmu-remastered.help.close": "/mdmr close - 断开直播连接",
+  "text.mousedanmu-remastered.help.status": "/mdmr status - 查看连接状态",
+  "text.mousedanmu-remastered.help.test": "/mdmr test [延迟毫秒] - 测试弹幕显示",
+  "text.mousedanmu-remastered.help.send": "/mdmr <消息> - 发送弹幕"
 }

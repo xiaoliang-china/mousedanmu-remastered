@@ -1,0 +1,16 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+rootProject.name = 'mousedanmu'
+
+// bili-live-danmu 库（原作者编写的哔哩哔哩直播弹幕库），位于本项目内的 bili-live-danmu 子目录
+include ':bili-live-danmu'
+project(':bili-live-danmu').projectDir = new File(settingsDir, 'bili-live-danmu')

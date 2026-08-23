@@ -117,18 +117,10 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         wantConnected = true;
         reconnectAttempts = 0;
         cancelReconnect();
-        try {
-            Auth auth = config.liveRoom.cookie.isEmpty() ?
-                    Auth.create(room) :
-                    Auth.create(room, config.liveRoom.cookie);
-            client.connect(auth);
-        } catch (Exception e) {
-            LOGGER.error("鼠鼠出错", e);
-            String msg = "鼠鼠出错:" + e.getMessage();
-            if (player != null)
-                player.sendMessage(Text.literal(msg).formatted(Formatting.RED), false);
-            scheduleReconnect();
-        }
+        // Auth.create() 内部有多段阻塞 HTTP 请求（wbi 签名 + getDanmuInfo），
+        // 网络波动时可能卡住数秒甚至抛 Connection reset。必须在后台线程执行，
+        // 否则会阻塞渲染线程导致游戏界面瞬间卡死未响应。
+        new Thread(this::doConnect, "MouseDanmu-Connect").start();
 
         //添加连接记录
         var history = config.liveRoom.history;
@@ -136,6 +128,23 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         if (i != -1)
             history.remove(i);
         history.add(0, room);
+    }
+
+    private void doConnect() {
+        try {
+            Auth auth = config.liveRoom.cookie.isEmpty() ?
+                    Auth.create(room) :
+                    Auth.create(room, config.liveRoom.cookie);
+            client.connect(auth);
+        } catch (Exception e) {
+            LOGGER.error("鼠鼠出错", e);
+            MinecraftClient.getInstance().execute(() -> {
+                String msg = "鼠鼠出错:" + e.getMessage();
+                if (player != null)
+                    player.sendMessage(Text.literal(msg).formatted(Formatting.RED), false);
+            });
+            MinecraftClient.getInstance().execute(this::scheduleReconnect);
+        }
     }
 
     public void close() {
@@ -176,6 +185,8 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
             });
             return;
         }
+        // 先取消未执行的旧任务，避免连续断开导致重复调度、多个重连线程并发
+        cancelReconnect();
         reconnectTask = reconnectScheduler.schedule(this::reconnect,
                 RECONNECT_DELAY_SECONDS, TimeUnit.SECONDS);
     }

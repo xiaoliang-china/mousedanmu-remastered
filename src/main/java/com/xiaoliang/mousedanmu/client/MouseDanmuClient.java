@@ -111,10 +111,23 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
     }
 
     public void close() {
+        close(false);
+    }
+
+    /**
+     * 关闭直播连接。
+     *
+     * @param notify 为 true 时向聊天框发送红色“已断开”提示
+     */
+    public void close(boolean notify) {
         wantConnected = false;
         cancelReconnect();
         client.disconnect();
         superChatManager.clear();
+        if (notify && player != null) {
+            player.sendMessage(Text.translatable("text.mousedanmu-remastered.live-room-closed")
+                    .formatted(Formatting.RED), false);
+        }
     }
 
     private void cancelReconnect() {
@@ -155,6 +168,14 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         }
     }
 
+    public boolean isConnected() {
+        return client.isOpen();
+    }
+
+    public int getRoomId() {
+        return room;
+    }
+
     public void status() {
         if (player == null)
             return;
@@ -172,126 +193,130 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         player.sendMessage(text, false);
     }
 
+    private static String t(String key) {
+        return Text.translatable("text.mousedanmu-remastered." + key).getString();
+    }
+
     public void test(int delay) throws InterruptedException {
         //普通消息
         var user = new User();
-        user.name = "立青";
+        user.name = t("test.user-name");
         user.uid = "345259002";
         user.guardLevel = 0;
         var danmu = new Danmu();
         danmu.user = user;
-        danmu.body = "初见，可以点我名字打开主页";
+        danmu.body = t("test.greeting");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //表情
         var emoji = new Emoji();
         emoji.uri = "https://www.bilibili.com/video/BV1GJ411x7h7";
-        emoji.body = "这是表情，我不会显示图片，可以点击查看图片！";
+        emoji.body = t("test.emoji");
         emoji.user = user;
         onEmoji(emoji);
         Thread.sleep(delay);
 
         //打赏和粉丝团1级
         user.fansMedal = new User.FansMedal();
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 1;
         var gift = new Gift();
         gift.price = 1;
-        gift.name = "粉丝团灯牌";
+        gift.name = t("test.gift-fans-medal");
         gift.num = 1;
         gift.user = user;
         onGift(gift);
         Thread.sleep(delay);
 
         gift.price = config.gift.price1;
-        gift.name = "礼物1";
+        gift.name = t("test.gift-1");
         onGift(gift);
         Thread.sleep(delay);
         gift.price = config.gift.price2;
-        gift.name = "礼物2";
+        gift.name = t("test.gift-2");
         onGift(gift);
         Thread.sleep(delay);
         gift.price = config.gift.price3;
-        gift.name = "礼物3";
+        gift.name = t("test.gift-3");
         onGift(gift);
         Thread.sleep(delay);
         gift.price = config.gift.price4;
-        gift.name = "礼物4";
+        gift.name = t("test.gift-4");
         onGift(gift);
         Thread.sleep(delay);
 
         //粉丝团5级
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 5;
-        danmu.body = "牌牌真好看";
+        danmu.body = t("test.badge-5");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //粉丝团9级
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 9;
-        danmu.body = "9级了耶";
+        danmu.body = t("test.badge-9");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //粉丝团13级
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 13;
-        danmu.body = "别问我的等级怎么涨的";
+        danmu.body = t("test.badge-13");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //粉丝团17级
-        user.fansMedal.name = "ikun";
+        user.fansMedal.name = t("test.medal-17");
         user.fansMedal.level = 17;
-        danmu.body = "我xxx没有开挂，你干嘛~哎哟";
+        danmu.body = t("test.badge-17");
         onDanmu(danmu);
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         Thread.sleep(delay);
 
         //粉丝团21级及舰长
         var guard = new Guard();
         guard.user = user;
-        guard.name = "舰长";
-        guard.unit = "月";
+        guard.name = t("test.guard-captain");
+        guard.unit = t("test.guard-unit");
         guard.level = 3;
         user.guardLevel = 3;
         guard.num = 1;
         guard.price = 138;
         onGuard(guard);
         Thread.sleep(delay);
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 21;
-        danmu.body = "舰长有什么礼物吗?";
+        danmu.body = t("test.guard-captain-msg");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //粉丝团25级及提督
-        guard.name = "提督";
+        guard.name = t("test.guard-commander");
         guard.level = 2;
         user.guardLevel = 2;
         guard.price = 1998;
         onGuard(guard);
         Thread.sleep(delay);
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         user.fansMedal.level = 25;
-        danmu.body = "提督总有礼物吧！！！";
+        danmu.body = t("test.guard-commander-msg");
         onDanmu(danmu);
         Thread.sleep(delay);
 
         //粉丝团29级及总督
-        guard.name = "总督";
+        guard.name = t("test.guard-governor");
         guard.level = 1;
         user.guardLevel = 1;
         guard.price = 19998;
         onGuard(guard);
         Thread.sleep(delay);
-        user.fansMedal.name = "蒙古人";
+        user.fansMedal.name = t("test.medal-29");
         user.fansMedal.level = 29;
-        danmu.body = "别激动，这其实是代码生成的总督，希望大家别被骗了";
+        danmu.body = t("test.guard-governor-msg");
         onDanmu(danmu);
-        user.fansMedal.name = "粉丝团";
+        user.fansMedal.name = t("test.fans-medal");
         Thread.sleep(delay);
 
         var sc = new SuperChat();
@@ -299,35 +324,35 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
 
         sc.time = 30;
         sc.price = 1000;
-        sc.body = "我柜子动了，我不玩了";
+        sc.body = t("test.sc-1");
         onSuperChat(sc);
         Thread.sleep(delay);
 
         sc.time = 20;
         sc.price = 30;
-        sc.body = "SC才能点歌吗";
+        sc.body = t("test.sc-2");
         onSuperChat(sc);
         Thread.sleep(delay);
 
         sc.price = 50;
-        sc.body = "这不对吧,SC时间怎么走这么快";
+        sc.body = t("test.sc-3");
         onSuperChat(sc);
         Thread.sleep(delay);
 
         sc.price = 100;
-        sc.body = "鼠鼠你坏事做尽";
+        sc.body = t("test.sc-4");
         onSuperChat(sc);
         Thread.sleep(delay);
 
         sc.price = 500;
-        sc.body = "把你变成狗";
+        sc.body = t("test.sc-5");
         onSuperChat(sc);
         Thread.sleep(delay);
 
         sc.time = 30;
-        user.fansMedal.name = "雏草姬";
+        user.fansMedal.name = t("test.medal-sc");
         sc.price = 2000;
-        sc.body = "关注永雏塔菲喵！关注永雏塔菲谢谢喵！";
+        sc.body = t("test.sc-6");
         onSuperChat(sc);
     }
 

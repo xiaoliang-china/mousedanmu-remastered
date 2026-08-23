@@ -3,6 +3,7 @@ package com.xiaoliang.mousedanmu;
 import com.xiaoliang.mousedanmu.client.MouseDanmuClient;
 import com.xiaoliang.mousedanmu.command.MouseDanmuCommand;
 import com.xiaoliang.mousedanmu.config.ModConfig;
+import com.xiaoliang.mousedanmu.display.ConnectionHudRenderer;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -21,6 +22,7 @@ public class MouseDanmuRemastered implements ClientModInitializer {
         client = new MouseDanmuClient(configHolder.getConfig());
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 MouseDanmuCommand.register(dispatcher));
+        ConnectionHudRenderer.register();
     }
 
     public static ModConfig getConfig() {

@@ -36,7 +36,7 @@ public class MouseDanmuCommand {
     }
 
     public static int close() {
-        MouseDanmuRemastered.client.close();
+        MouseDanmuRemastered.client.close(true);
         return 1;
     }
 

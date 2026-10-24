@@ -1,4 +1,4 @@
-# Template Mod
+# Fabric-1.21.8
 
 ## Setup
 

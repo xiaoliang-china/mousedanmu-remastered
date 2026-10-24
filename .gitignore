@@ -41,3 +41,8 @@ replay_*.log
 
 # bili-live-danmu 子项目源码单独管理，不随本仓库发布
 bili-live-danmu/
+
+# 各版本 Fabric 模板工程，不随本仓库提交
+fabric-1.21.1/
+fabric-1.21.4/
+fabric-1.21.8/

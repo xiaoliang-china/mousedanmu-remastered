@@ -9,15 +9,5 @@ pluginManagement {
 	}
 }
 
-rootProject.name = 'mousedanmu'
-
-// bili-live-danmu 库（哔哩哔哩直播弹幕库），默认使用本项目内的 bili-live-danmu 子目录。
-// 如需放到其他位置，在 gradle.properties 中设置 biliDanmuDir（绝对或相对路径均可），
-// 例如：biliDanmuDir=D:/libs/bili-live-danmu
-def biliDanmuDir = providers.gradleProperty('biliDanmuDir').orNull ?: 'bili-live-danmu'
-def biliDanmuProjectDir = new File(biliDanmuDir)
-if (!biliDanmuProjectDir.isAbsolute()) {
-    biliDanmuProjectDir = new File(settingsDir, biliDanmuDir)
-}
-include ':bili-live-danmu'
-project(':bili-live-danmu').projectDir = biliDanmuProjectDir
+// Should match your modid
+rootProject.name = 'template-mod'

@@ -4,38 +4,17 @@ plugins {
 }
 
 repositories {
-	mavenCentral()
-	// Modrinth / Shedaniel(cloth-config) / Terraformers(modmenu)
-	exclusiveContent {
-		forRepository {
-			maven {
-				name = "Modrinth"
-				url = "https://api.modrinth.com/maven"
-			}
-		}
-		filter {
-			includeGroup "maven.modrinth"
-		}
-	}
-	maven { url "https://maven.shedaniel.me/" }
-	maven {
-		name = "Terraformers"
-		url = "https://maven.terraformersmc.com/"
-	}
+	// Add repositories to retrieve artifacts from in here.
+	// You should only use this when depending on other mods because
+	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
+	// for more information about repositories.
 }
 
-// 全局 init 脚本(neoforge-mirror.gradle)会给所有项目注入 maven.neoforged.net /
-// maven.minecraftforge.net 仓库。当前网络环境下访问这两个仓库会 Connection
-// reset，导致 Gradle 中断整个依赖解析（即使后续仓库存在正确的 artifact）。
-// 此处将其移除，只保留本项目显式声明的仓库。
-allprojects { p ->
-	p.repositories.removeIf { repo ->
-		try {
-			def url = repo.url
-			url != null && (url.toString().contains('neoforged') || url.toString().contains('minecraftforge'))
-		} catch (Exception e) {
-			false
-		}
+fabricApi {
+	configureDataGeneration {
+		client = true
+		modId = "template-mod"
 	}
 }
 
@@ -47,16 +26,6 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-	modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
-		exclude(group: "net.fabricmc.fabric-api")
-	}
-
-	// 原作者编写的 bili-live-danmu 直播弹幕库
-	implementation project(':bili-live-danmu')
-	include(project(":bili-live-danmu"))
-	include "org.java-websocket:Java-WebSocket:1.5.7"
 }
 
 processResources {
@@ -68,27 +37,8 @@ processResources {
 	}
 }
 
-// Keep the included library's published variant compatible with this mod's Java runtime.
-project(':bili-live-danmu') {
-	plugins.withId('java-library') {
-		java {
-			sourceCompatibility = JavaVersion.VERSION_17
-			targetCompatibility = JavaVersion.VERSION_17
-		}
-		tasks.withType(JavaCompile).configureEach {
-			options.release.set(17)
-		}
-	}
-	// 该库自身的测试依赖 JUnit Platform，当前构建环境无法运行，移植时无需执行，
-	// 直接禁用测试任务。
-	tasks.withType(Test).configureEach {
-		enabled = false
-	}
-}
-
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
-	it.options.encoding = "UTF-8"
 }
 
 java {

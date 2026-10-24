@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>mousedanmu</name>
+	<comment></comment>
+	<projects/>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+	</buildSpec>
+	<linkedResources>
+		<link>
+			<name>bili-live-danmu</name>
+			<type>2</type>
+			<location>D:/MCwork/mouse-danmu/bili-live-danmu/src/main/java</location>
+		</link>
+	</linkedResources>
+	<filteredResources/>
+</projectDescription>

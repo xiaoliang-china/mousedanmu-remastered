@@ -8,6 +8,8 @@ classes/
 # eclipse
 
 *.launch
+.settings/
+bin/
 
 # idea
 
@@ -18,11 +20,7 @@ classes/
 
 # vscode
 
-.settings/
 .vscode/
-bin/
-.classpath
-.project
 
 # macos
 
@@ -38,3 +36,6 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# 意外生成的空文件
+$null

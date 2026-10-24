@@ -9,5 +9,13 @@ pluginManagement {
 	}
 }
 
-// Should match your modid
-rootProject.name = 'template-mod'
+rootProject.name = 'mousedanmu'
+
+// bili-live-danmu 库不复制进本仓库，路径由 gradle.properties 的 biliDanmuDir 指定。
+def biliDanmuDir = providers.gradleProperty('biliDanmuDir').orNull ?: 'bili-live-danmu'
+def biliDanmuProjectDir = new File(biliDanmuDir)
+if (!biliDanmuProjectDir.isAbsolute()) {
+    biliDanmuProjectDir = new File(settingsDir, biliDanmuDir)
+}
+include ':bili-live-danmu'
+project(':bili-live-danmu').projectDir = biliDanmuProjectDir

@@ -19,14 +19,20 @@ public class DanmuConverter {
     }
 
     public MutableText convertUser(@NotNull User user) {
+        boolean hasUid = user.uid != null && !user.uid.isBlank() && !"0".equals(user.uid);
         var mutableText = Text.literal(user.name)
                 .append(": ")
-                .styled(style -> style
-                        .withColor(colorPicker.user(user.guardLevel))
-                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(
-                                "https://space.bilibili.com/%s".formatted(user.uid))))
-                        .withHoverEvent(new HoverEvent.ShowText(
-                                Text.translatable("text.mousedanmu-remastered.click-to-user-space"))));
+                .styled(style -> {
+                    style = style.withColor(colorPicker.user(user.guardLevel));
+                    if (hasUid) {
+                        style = style
+                                .withClickEvent(new ClickEvent.OpenUrl(URI.create(
+                                        "https://space.bilibili.com/%s".formatted(user.uid))))
+                                .withHoverEvent(new HoverEvent.ShowText(
+                                        Text.translatable("text.mousedanmu-remastered.click-to-user-space")));
+                    }
+                    return style;
+                });
 
         if (config.danmu.isShowFansMedal && user.fansMedal != null && !user.fansMedal.name.isEmpty()) {
             var fansMedalText = Texts.bracketed(Text.literal(user.fansMedal.name)
@@ -88,12 +94,15 @@ public class DanmuConverter {
 
     public MutableText convert(@NotNull Interactive interactive) {
         var msg = switch (interactive.type) {
-            case 1 -> Text.translatable("text.mousedanmu-remastered.entry-live-room");
-            case 2 -> Text.translatable("text.mousedanmu-remastered.attention-live-room");
-            case 3 -> Text.translatable("text.mousedanmu-remastered.share-live-room");
-            case 4 -> Text.translatable("text.mousedanmu-remastered.special-attention-live-room");
-            case 5 -> Text.translatable("text.mousedanmu-remastered.mutual-attention-live-room");
-            default -> Text.literal("未知互动类型:%d".formatted(interactive.type));
+            case Interactive.ENTER -> Text.translatable("text.mousedanmu-remastered.entry-live-room");
+            case Interactive.FOLLOW -> Text.translatable("text.mousedanmu-remastered.attention-live-room");
+            case Interactive.SHARE -> Text.translatable("text.mousedanmu-remastered.share-live-room");
+            case Interactive.SPECIAL_FOLLOW -> Text.translatable("text.mousedanmu-remastered.special-attention-live-room");
+            case Interactive.MUTUAL_FOLLOW -> Text.translatable("text.mousedanmu-remastered.mutual-attention-live-room");
+            case Interactive.LIKE -> interactive.text == null || interactive.text.isBlank()
+                    ? Text.translatable("text.mousedanmu-remastered.like-live-room")
+                    : Text.literal(interactive.text);
+            default -> Text.translatable("text.mousedanmu-remastered.unknown-interactive", interactive.type);
         };
         var mutableText = Texts.bracketed(msg)
                 .styled(style -> style.withColor(config.danmu.interactiveColor));

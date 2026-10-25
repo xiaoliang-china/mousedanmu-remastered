@@ -57,6 +57,7 @@ dependencies {
 	implementation project(':bili-live-danmu')
 	include(project(":bili-live-danmu"))
 	include "org.java-websocket:Java-WebSocket:1.5.7"
+	include "org.brotli:dec:0.1.2"
 }
 
 processResources {
@@ -78,11 +79,6 @@ project(':bili-live-danmu') {
 		tasks.withType(JavaCompile).configureEach {
 			options.release.set(17)
 		}
-	}
-	// 该库自身的测试依赖 JUnit Platform，当前构建环境无法运行，移植时无需执行，
-	// 直接禁用测试任务。
-	tasks.withType(Test).configureEach {
-		enabled = false
 	}
 }
 

@@ -53,6 +53,11 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
     private ScheduledFuture<?> reconnectTask;
     private boolean wantConnected;
     private int reconnectAttempts;
+    /**
+     * 每次手动连接或断开都会加一。后台鉴权返回后用它丢弃已经过期的连接请求，
+     * 避免“先连 A 再立刻连 B”时 A 的结果把 B 覆盖掉。
+     */
+    private int connectGeneration;
 
     public MouseDanmuClient(ModConfig config) {
         ClientPlayConnectionEvents.JOIN.register(this);
@@ -117,10 +122,12 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         wantConnected = true;
         reconnectAttempts = 0;
         cancelReconnect();
+        connectGeneration++;
+        final int generation = connectGeneration;
         // Auth.create() 内部有多段阻塞 HTTP 请求（wbi 签名 + getDanmuInfo），
         // 网络波动时可能卡住数秒甚至抛 Connection reset。必须在后台线程执行，
         // 否则会阻塞渲染线程导致游戏界面瞬间卡死未响应。
-        new Thread(this::doConnect, "MouseDanmu-Connect").start();
+        new Thread(() -> doConnect(generation), "MouseDanmu-Connect").start();
 
         //添加连接记录
         var history = config.liveRoom.history;
@@ -130,20 +137,27 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         history.add(0, room);
     }
 
-    private void doConnect() {
+    private void doConnect(int generation) {
         try {
             Auth auth = config.liveRoom.cookie.isEmpty() ?
                     Auth.create(room) :
                     Auth.create(room, config.liveRoom.cookie);
+            if (generation != connectGeneration || !wantConnected) {
+                return;
+            }
             client.connect(auth);
         } catch (Exception e) {
-            LOGGER.error("鼠鼠出错", e);
+            if (generation != connectGeneration || !wantConnected) {
+                return;
+            }
+            LOGGER.error("连接直播间失败", e);
             MinecraftClient.getInstance().execute(() -> {
-                String msg = "鼠鼠出错:" + e.getMessage();
                 if (player != null)
-                    player.sendMessage(Text.literal(msg).formatted(Formatting.RED), false);
+                    player.sendMessage(Text.translatable(
+                                    "text.mousedanmu-remastered.connect-failed", e.getMessage())
+                            .formatted(Formatting.RED), false);
+                scheduleReconnect();
             });
-            MinecraftClient.getInstance().execute(this::scheduleReconnect);
         }
     }
 
@@ -158,6 +172,7 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
      */
     public void close(boolean notify) {
         wantConnected = false;
+        connectGeneration++;
         cancelReconnect();
         client.disconnect();
         superChatManager.clear();
@@ -180,7 +195,7 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             MinecraftClient.getInstance().execute(() -> {
                 if (player != null)
-                    player.sendMessage(Text.literal("自动重连失败，请使用 /mdmr connect <房间号> 重新连接")
+                    player.sendMessage(Text.translatable("text.mousedanmu-remastered.reconnect-failed")
                             .formatted(Formatting.RED), false);
             });
             return;
@@ -205,6 +220,13 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
             LOGGER.error("重连失败", e);
             MinecraftClient.getInstance().execute(this::scheduleReconnect);
         }
+    }
+
+    private boolean hasSendCookie() {
+        String cookie = config.liveRoom.cookie;
+        return cookie != null
+                && cookie.contains("bili_jct=")
+                && cookie.contains("SESSDATA=");
     }
 
     public boolean isConnected() {
@@ -358,6 +380,13 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
         user.fansMedal.name = t("test.fans-medal");
         Thread.sleep(delay);
 
+        var like = new Interactive();
+        like.user = user;
+        like.type = Interactive.LIKE;
+        like.text = t("test.like");
+        onInteractive(like);
+        Thread.sleep(delay);
+
         var sc = new SuperChat();
         sc.user = user;
 
@@ -462,12 +491,9 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
 
     @Override
     public void onError(Exception ex) {
-        MinecraftClient.getInstance().execute(() -> {
-            LOGGER.error("鼠鼠出错", ex);
-            String msg = "鼠鼠出错:" + ex.getMessage();
-            if (player != null)
-                player.sendMessage(Text.literal(msg).formatted(Formatting.RED), false);
-        });
+        // 握手失败时 Java-WebSocket 会先 onError 再 onClose。
+        // 这里只记录，重连交给 onClose，避免同一条断线提示两次并排两次重连。
+        LOGGER.error("弹幕连接出错", ex);
     }
 
     @Override
@@ -483,14 +509,31 @@ public class MouseDanmuClient implements ClientPlayConnectionEvents.Disconnect, 
     }
 
     public void sendDanmu(String message) {
+        if (!hasSendCookie()) {
+            MinecraftClient.getInstance().execute(() -> {
+                if (player != null)
+                    player.sendMessage(Text.translatable("text.mousedanmu-remastered.send-need-cookie")
+                            .formatted(Formatting.RED), false);
+            });
+            return;
+        }
+        if (room == 0) {
+            MinecraftClient.getInstance().execute(() -> {
+                if (player != null)
+                    player.sendMessage(Text.translatable("text.mousedanmu-remastered.send-need-room")
+                            .formatted(Formatting.RED), false);
+            });
+            return;
+        }
         try {
             DanmuClient.send(config.liveRoom.cookie, String.valueOf(room), message);
         } catch (Exception e) {
             MinecraftClient.getInstance().execute(() -> {
-                LOGGER.error("鼠鼠出错", e);
-                String msg = "鼠鼠出错:" + e.getMessage();
+                LOGGER.error("发送弹幕失败", e);
                 if (player != null)
-                    player.sendMessage(Text.literal(msg).formatted(Formatting.RED), false);
+                    player.sendMessage(Text.translatable(
+                                    "text.mousedanmu-remastered.send-failed", e.getMessage())
+                            .formatted(Formatting.RED), false);
             });
         }
     }
